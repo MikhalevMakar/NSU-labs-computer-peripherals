@@ -1,10 +1,3 @@
-
-main:
-//Выравнивание бит
-        leal    4(%esp), %ecx
-        andl    $-16, %esp //1111
-        pushl   -4(%ecx) //помещает адрес возврата из функции на вершину стека
-
 SerExpanGregoryLeibniz:
         pushl   %ebp
         movl    %esp, %ebp
@@ -45,8 +38,8 @@ SerExpanGregoryLeibniz:
         .string "%lf"
 main:
 //Выравнивание бит
-        leal    4(%esp), %ecx
-        andl    $-16, %esp
+        leal    4(%esp), %ecx //адресс нулевого элемента функции
+        andl    $-16, %esp //111..110000 так что бы было кратно 16 бит 
 
         pushl   -4(%ecx)
         pushl   %ebp  //добавить адрес возврата в стек
