@@ -61,7 +61,7 @@ main:
         addsd   %xmm0, %xmm0  //i+i
         addsd   %xmm4, %xmm0  # 2*i+1
         divsd   %xmm0, %xmm1  //4.0*signDef / 2*i+1
-        addsd   %xmm1, %xmm3  // к res += xmm1
+        addsd   %xmm1, %xmm3  //к res += xmm1
         cmpl    %eax, %edx     //сравнили N и i
         jne     .L10
 .L9:
@@ -69,9 +69,9 @@ main:
         movl    $.LC4, %edi //в edi записали
         movl    $1, %eax  //зколичество аргументов функции
         call    printf
-        xorl    %eax, %eax //<retval>
-        popq    %rdx
-        ret
+        xorl    %eax, %eax //<retval> занулили eax = 0
+        popq    %rdx // // извлечение значения с вершины стека  в регистр rdx.
+        ret //Команда RET читает из стека адрес возврата и заносит его в регистр IP, передавая таким образом управление
 
 .LC0:
         .long   0
