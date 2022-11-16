@@ -97,7 +97,7 @@ int main() {
     faceCascadeEyse.load("../ConfigFolder/haarcascade_eye_tree_eyeglasses.xml");
     assert(!faceCascadeEyse.empty());
 
-    Mat  frame, image;
+    Mat  frame;
 
     int countFrame = 0;
 
