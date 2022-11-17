@@ -2,7 +2,6 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 #include <vector>
-#include <ctime>
 
 enum {
     singleCamera = 0,
@@ -35,10 +34,9 @@ enum DarkMagenta {
 using namespace cv;
 using namespace std;
 
-
 CascadeClassifier faceCascadeFrontalFace, faceCascadeEyse;
 std::string  path = "output.avi";
-
+std::string configFolder = "../ConfigFolder/";
 
 void detectAndDrawEyesAndFace(Mat& frame) {
     Mat frameGray;
@@ -59,6 +57,7 @@ void detectAndDrawEyesAndFace(Mat& frame) {
                                                              Salmon::Yellow128,
                                                              Salmon::Red250),
                                                              FILLED);
+
         putText(frame, to_string(faces.size()), Point(10, 40), FONT_HERSHEY_DUPLEX, 1, Scalar(Khaki::Green140,
                                                                                               Khaki::Yellow230,
                                                                                               Khaki::Red240),1);
@@ -84,37 +83,79 @@ void ChangingContrastImage(Mat& frame) {
     frame.convertTo(new_image, 1, alpha, beta);
 }
 
-int main() {
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+void PrintPercentFPS(vector<double>& resultDuration, int countOfFrame) {
+    for(int i = 0; i < resultDuration.size(); ++i) {
+        std::cout << i+1 <<": percentFPS " << resultDuration[i] / static_cast<double>(countOfFrame) * 100 << "%" << "\n";
+    }
+}
 
+int main() {
     cv::VideoCapture videoCapture(singleCamera);
     assert(videoCapture.isOpened());
 
-    faceCascadeFrontalFace.load("../ConfigFolder/haarcascade_frontalface_default.xml");
+    faceCascadeFrontalFace.load(configFolder +"haarcascade_frontalface_default.xml");
     assert(!faceCascadeFrontalFace.empty());
 
-    faceCascadeEyse.load("../ConfigFolder/haarcascade_eye_tree_eyeglasses.xml");
+    faceCascadeEyse.load(configFolder + "haarcascade_eye_tree_eyeglasses.xml");
     assert(!faceCascadeEyse.empty());
 
     Mat  frame;
 
-    int countFrame = 0;
+    long long countOfFrame = 0;
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> newFrameTime,
+                                                                prevFrameTime,
+                                                                startTotalTime,
+                                                                endTotalTime;
+    double resultDurationThreadReadingTime = 0,
+           resultDurationTransformationFrame = 0,
+           resultOutputFrame = 0,
+           resultDurationWaitKey = 0;
 
     while(true) {
+        startTotalTime = std::chrono::high_resolution_clock::now();
+        prevFrameTime = std::chrono::high_resolution_clock::now();
         videoCapture >> frame;
         assert(!frame.empty());
+        newFrameTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> durationThreadReadingTime(newFrameTime - prevFrameTime);
 
+        prevFrameTime = std::chrono::high_resolution_clock::now();
+        if( waitKey(1) == static_cast<int>('q')) break;
+        newFrameTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> durationWaitKeyTime(newFrameTime - prevFrameTime);
+
+        prevFrameTime  =  std::chrono::high_resolution_clock::now();
+        flip(frame, frame, 1);
         detectAndDrawEyesAndFace(frame);
         ChangingContrastImage(frame);
-        imshow("Show Frame", frame);
-        if( waitKey(1) == static_cast<int>('q')) break;
+        newFrameTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration <double> durationTransformationFrame(newFrameTime - prevFrameTime);
 
-        countFrame++;
+        prevFrameTime  =  std::chrono::high_resolution_clock::now();
+        imshow("Show Frame", frame);
+        newFrameTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration <double> durationOutputFrame(newFrameTime - prevFrameTime);
+
+        endTotalTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> totalTime = (endTotalTime - startTotalTime);
+        int FPS = static_cast<int> (1 / totalTime.count());
+        std::cout<< "FPS: " << FPS << "\n";
+
+        resultDurationThreadReadingTime +=  durationThreadReadingTime.count() / totalTime.count();
+        resultDurationWaitKey += durationWaitKeyTime.count() / totalTime.count();
+        resultDurationTransformationFrame += durationTransformationFrame.count() / totalTime.count();
+        resultOutputFrame += durationOutputFrame.count() / totalTime.count();
+
+        countOfFrame++;
     }
 
-    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-    printf("FPS %lf \n", static_cast<double>(countFrame) / (end.tv_sec - start.tv_sec +
-                                                                         0.000000001 * (end.tv_nsec - start.tv_nsec)));
+    vector<double> resultDuration = {resultDurationThreadReadingTime,
+                                     resultDurationWaitKey,
+                                     resultDurationTransformationFrame,
+                                     resultOutputFrame};
+
+    PrintPercentFPS(resultDuration, countOfFrame);
+
     return 0;
 }
