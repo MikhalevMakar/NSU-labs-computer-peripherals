@@ -150,37 +150,18 @@ Matrix operator-(const Matrix& first, const Matrix& second) {
 }
 
 void Matrix::findNormal() {
-//    float curRowSum = 0, curColumSum = 0;
-//    endlessNorm = firstNorm = __FLT_MIN__;
-//    for (int i = 0; i < N; ++i) {
-//        for (int j = 0; j < N; ++j) {
-//            curRowSum += std::abs(matrix[N * i + j]);
-//            curColumSum += std::abs(matrix[N * j + i]);
-//        }
-//
-//        endlessNorm = (endlessNorm < curRowSum) ? curRowSum : endlessNorm;
-//        firstNorm = (firstNorm < curColumSum) ? curColumSum : firstNorm;
-//        curRowSum = curColumSum = 0;
-//    }
+   float curRowSum = 0, curColumSum = 0;
+   endlessNorm = firstNorm = __FLT_MIN__;
+   for (int i = 0; i < N; ++i) {
+       for (int j = 0; j < N; ++j) {
+           curRowSum += std::abs(matrix[N * i + j]);
+           curColumSum += std::abs(matrix[N * j + i]);
+       }
 
-        float maxSumOfColumn = 0;
-        float maxSumOfLine = 0;
-        for (int j = 0; j < N; ++j)
-        {
-            float currentSumOfColumn = 0;
-            float currentSumOfLine = 0;
-            for (int i = 0; i < N; ++i)
-            {
-                float coefficientOfColumn = (matrix[i * N + j] < 0) ? -1 : 1;
-                float coefficientOfLine = (matrix[j * N + i] < 0) ? -1 : 1;
-                currentSumOfColumn += matrix[i * N + j] * coefficientOfColumn;
-                currentSumOfLine += matrix[j * N + i] * coefficientOfLine;
-            }
-            maxSumOfColumn = std::max(maxSumOfColumn, currentSumOfColumn);
-            maxSumOfLine = std::max(maxSumOfLine, currentSumOfLine);
-        }
-    firstNorm = maxSumOfColumn;
-    endlessNorm = maxSumOfLine;
+       endlessNorm = (endlessNorm < curRowSum) ? curRowSum : endlessNorm;
+       firstNorm = (firstNorm < curColumSum) ? curColumSum : firstNorm;
+       curRowSum = curColumSum = 0;
+   }
 }
 
 float Matrix::getFirstNorm() {
