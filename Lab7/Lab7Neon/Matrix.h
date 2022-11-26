@@ -10,7 +10,7 @@
 #include <iostream>
 #include <vector>
 #include <arm_neon.h>
-enum { N = 8, M = 10, zeroValue = 0};
+enum { N = 2048, M = 10, zeroValue = 0};
 
 class Matrix {
 public:
@@ -36,6 +36,12 @@ public:
 
     void printMatrix();
 
+    void findNormal();
+
+    float getFirstNorm();
+
+    float getEndlessNorm();
+
     Matrix& operator=(const Matrix& first);
 
     Matrix& operator+=(const Matrix& other);
@@ -50,6 +56,7 @@ private:
     float* matrix;
     float32x4_t* matrix_neon;
     //float* transformMatrix;
+    float endlessNorm, firstNorm;
 };
 
 Matrix operator*(const Matrix& first, const Matrix& second);

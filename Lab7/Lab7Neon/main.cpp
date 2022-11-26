@@ -27,11 +27,14 @@ int main() {
     startTime = std::chrono::high_resolution_clock::now();
     Matrix A;
     A.fillA();
-    Matrix inversionA = matrixInversion(A);
-    inversionA.printMatrix();
+    Matrix InversionA = matrixInversion(A);
 
     endTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration <double> duration(endTime - startTime);
     std::cout<< "\nTotal Time: " << duration.count();
+
+    InversionA = InversionA * A;
+    InversionA.findNormal();
+    std::cout << "\n" << InversionA.getFirstNorm() << " " << InversionA.getEndlessNorm();
     return 0;
 }

@@ -139,6 +139,28 @@ void Matrix::printMatrix() const{
     }
 }
 
+void Matrix::findNormal() {
+    float curRowSum = 0, curColumSum = 0;
+    endlessNorm = firstNorm = __FLT_MIN__;
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            curRowSum += std::abs(matrix[N * i + j]);
+            curColumSum += std::abs(matrix[N * j + i]);
+        }
+        endlessNorm = (endlessNorm < curRowSum) ? curRowSum : endlessNorm;
+        firstNorm = (firstNorm < curColumSum) ? curColumSum : firstNorm;
+        curRowSum = curColumSum = 0;
+    }
+}
+
+float Matrix::getFirstNorm() {
+    return firstNorm;
+}
+
+float Matrix::getEndlessNorm() {
+    return endlessNorm;
+}
+
 Matrix& Matrix::operator=(const Matrix& first) {
    float32x4_t* first_neon = (float32x4_t*)first.matrix;
     for(int i = 0; i < N; ++i) {
