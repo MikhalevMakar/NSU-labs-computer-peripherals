@@ -1,6 +1,7 @@
 //
-// Created by Макар Михалёв on 19.11.2022.
+// Created by Макар Михалёв on 25.11.2022.
 //
+
 #include "Matrix.h"
 
 Matrix::Matrix() {
@@ -36,7 +37,7 @@ void Matrix::fillI() {
 
 void Matrix::fillA() {
     for(int i =0;i<N*N;++i){
-       matrix[i] = i+1;
+        matrix[i] = i+1;
     }
 }
 
@@ -85,20 +86,13 @@ void Matrix::printMatrix() {
         std::cout << "\n";
     }
 }
-float Matrix::checkMatrix() {
-    float sum = 0;
-    for(int i = 0; i < N; ++i) {
-        for(int j = 0; j < N; ++j) {
-            sum += matrix[N*i+j];
-        }
-    }
-    return sum;
-}
+
 
 Matrix& Matrix::operator=(const Matrix& first) {
+
     for(int i = 0; i < N; ++i) {
         for(int j = 0; j < N; ++j) {
-           matrix[N*i+j] = first.matrix[N*i+j];
+            matrix[N*i+j] = first.matrix[N*i+j];
         }
     }
     return *this;
@@ -125,14 +119,7 @@ Matrix& Matrix::Matrix::operator-=(const Matrix& other) {
 
 Matrix operator*(const Matrix& first, const Matrix& second) {
     Matrix result;
-    result.fillZero();
-    for (int row = 0;  row < N; ++row) {
-        for (int  curIndex= 0;  curIndex < N; ++curIndex) {
-            for (int colum = 0;  colum < N; ++colum) {
-                result.matrix[N*row+colum] += first.matrix[N*row+curIndex] * second.matrix[N*curIndex+colum];
-            }
-        }
-    }
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, N, N, N, 1.0, first.matrix, N, second.matrix, N, 0.0, result.matrix, N);
     return result;
 }
 
@@ -156,8 +143,9 @@ void Matrix::findNormal() {
             curRowSum += std::abs(matrix[N * i + j]);
             curColumSum += std::abs(matrix[N * j + i]);
         }
-        endlessNorm = (endlessNorm < curRowSum) ? curRowSum : endlessNorm;
-        firstNorm = (firstNorm < curColumSum) ? curColumSum : firstNorm;
+
+        endlessNorm = std::max(curRowSum, endlessNorm);
+        firstNorm =  std::max(curColumSum, firstNorm);
         curRowSum = curColumSum = 0;
     }
 }

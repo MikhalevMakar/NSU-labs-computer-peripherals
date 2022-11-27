@@ -5,16 +5,14 @@
 //
 
 #include "Matrix.h"
+#include <chrono>
 
 Matrix matrixInversion(const Matrix& A) {
     Matrix I, B, SuppA(A), R;
     I.fillI();
     B.fillB(A);
-    std::cout<< "B\n";
-    B.printMatrix();
     R.fillR(I, A, B);
-    std::cout<< "R\n";
-    R.printMatrix();
+
     Matrix CurrentR(R);
     Matrix InversionMatrix = I;
 
@@ -24,8 +22,7 @@ Matrix matrixInversion(const Matrix& A) {
         CurrentR =  R * CurrentR;
         InversionMatrix += CurrentR;
     }
-    std::cout<< "InversionMatrix\n";
-    InversionMatrix.printMatrix();
+
     InversionMatrix = InversionMatrix * B;
     return InversionMatrix;
 }
@@ -37,14 +34,17 @@ int main() {
     Matrix A;
     A.fillA();
 
-    Matrix inversionA = matrixInversion(A);
-    inversionA =  inversionA*A;
-    std::cout<< "inversionA\n";
-    inversionA.printMatrix();
+    Matrix InversionA = matrixInversion(A);
 
-    std::cout << inversionA.getFirstNorm() << " " << inversionA.getEndlessNorm();
     endTime = std::chrono::high_resolution_clock::now();
+
     std::chrono::duration<double> totalTime = (endTime - startTime);
     std::cout << "\nTotal Time: " << totalTime.count();
+
+
+    InversionA =  InversionA*A;
+
+    InversionA.findNormal();
+    std::cout << "\n" << InversionA.getFirstNorm() << " " << InversionA.getEndlessNorm();
     return 0;
 }
