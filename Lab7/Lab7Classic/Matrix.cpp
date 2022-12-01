@@ -3,138 +3,90 @@
 //
 #include "Matrix.h"
 
-Matrix::Matrix() {
-    matrix = new float[N * N];
+Matrix::Matrix(const int sizeMatrix_) : sizeMatrix(sizeMatrix_) {
+    matrix = new float[sizeMatrix * sizeMatrix];
 }
 
 Matrix::Matrix(const Matrix& other) {
-    matrix = new float[N * N];
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            matrix[N * i + j] = other.matrix[N * i + j];
+    matrix = new float[other.sizeMatrix * other.sizeMatrix];
+    sizeMatrix = other.sizeMatrix;
+    for (int i = 0; i < sizeMatrix; ++i) {
+        for (int j = 0; j < sizeMatrix; ++j) {
+            matrix[sizeMatrix * i + j] = other.matrix[sizeMatrix * i + j];
         }
     }
 }
 
-Matrix::Matrix(Matrix&& other) noexcept{
+Matrix::Matrix(Matrix&& other) noexcept {
     this->matrix = other.matrix;
     delete[] &other;
 }
 
-Matrix& Matrix::operator=(Matrix&& other) noexcept {
-    this->matrix = other.matrix;
-    return *this;
-}
-
-void Matrix::fillI() {
-    for(int i = 0; i < N; ++i) {
-        for(int j = 0; j < N; ++j) {
-            matrix[N*i + j] = static_cast<float>(i == j);
+void Matrix::fillIdentityMatrix() {
+    for(int i = 0; i < sizeMatrix; ++i) {
+        for(int j = 0; j < sizeMatrix; ++j) {
+            matrix[sizeMatrix*i + j] = static_cast<float>(i == j);
         }
     }
-}
-
-void Matrix::fillA() {
-    for(int i =0;i<N*N;++i){
-       matrix[i] = i+1;
-    }
-}
-
-float Matrix::findMaxRowAndColum(const Matrix& other) {
-    float rowMaxSum = __FLT_MIN__, columMaxSum = __FLT_MIN__, curRowSum = 0, curColumSum = 0;
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            curRowSum += other.matrix[N * i + j];
-            curColumSum += other.matrix[N * j + i];
-        }
-
-        rowMaxSum = (rowMaxSum < curRowSum) ? curRowSum : rowMaxSum;
-        columMaxSum = (columMaxSum < curColumSum) ? curColumSum : columMaxSum;
-        curRowSum = curColumSum = 0;
-    }
-    return rowMaxSum * columMaxSum;
 }
 
 void Matrix::fillZero() {
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            matrix[N*i+j] = 0.0;
+    for (int i = 0; i < sizeMatrix; ++i) {
+        for (int j = 0; j < sizeMatrix; ++j) {
+            matrix[sizeMatrix*i+j] = 0.0;
         }
     }
-}
-
-void Matrix::fillB(const Matrix& other) {
-    float denominator = findMaxRowAndColum(other);
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            matrix[N * i + j] = other.matrix[N * j + i] / denominator;
-        }
-    }
-}
-
-void Matrix::fillR(const Matrix& I, const Matrix& B, const Matrix& A) {
-    *this = A * B;
-    *this = I - *this;
 }
 
 void Matrix::printMatrix() {
-    for(int i = 0; i < N; ++i) {
-        for(int j = 0; j < N; ++j) {
-            std::cout <<  matrix[N*i+j] << " ";
+    for(int i = 0; i < sizeMatrix; ++i) {
+        for(int j = 0; j < sizeMatrix; ++j) {
+            std::cout <<  matrix[sizeMatrix*i+j] << " ";
         }
         std::cout << "\n";
     }
+    std::cout << "\n";
 }
-float Matrix::checkMatrix() {
-    float sum = 0;
-    for(int i = 0; i < N; ++i) {
-        for(int j = 0; j < N; ++j) {
-            sum += matrix[N*i+j];
+
+void Matrix::printMatrix() const {
+    for(int i = 0; i < sizeMatrix; ++i) {
+        for(int j = 0; j < sizeMatrix; ++j) {
+            std::cout <<  matrix[sizeMatrix*i+j] << " ";
         }
+        std::cout << "\n";
     }
-    return sum;
+    std::cout << "\n";
 }
 
 Matrix& Matrix::operator=(const Matrix& first) {
-    for(int i = 0; i < N; ++i) {
-        for(int j = 0; j < N; ++j) {
-           matrix[N*i+j] = first.matrix[N*i+j];
+    sizeMatrix = first.sizeMatrix;
+    for(int i = 0; i < sizeMatrix; ++i) {
+        for(int j = 0; j < sizeMatrix; ++j) {
+           matrix[sizeMatrix*i+j] = first.matrix[sizeMatrix*i+j];
         }
     }
     return *this;
 }
 
 Matrix& Matrix::operator+=(const Matrix& other) {
-    for(int i = 0; i < N; ++i) {
-        for(int j = 0; j < N; ++j) {
-            matrix[N*i+j] += other.matrix[N*i+j];
+    for(int i = 0; i < sizeMatrix; ++i) {
+        for(int j = 0; j < sizeMatrix; ++j) {
+            matrix[sizeMatrix*i+j] += other.matrix[sizeMatrix*i+j];
         }
     }
     return *this;
 }
 
 Matrix& Matrix::Matrix::operator-=(const Matrix& other) {
-    for(int i = 0; i < N; ++i) {
-        for(int j = 0; j < N; ++j) {
-            matrix[N*i+j] -= other.matrix[N*i+j];
+    for(int i = 0; i < sizeMatrix; ++i) {
+        for(int j = 0; j < sizeMatrix; ++j) {
+            this->matrix[sizeMatrix*i+j] -= other.matrix[sizeMatrix*i+j];
         }
     }
+
     return *this;
 }
 
-
-Matrix operator*(const Matrix& first, const Matrix& second) {
-    Matrix result;
-    result.fillZero();
-    for (int row = 0;  row < N; ++row) {
-        for (int  curIndex= 0;  curIndex < N; ++curIndex) {
-            for (int colum = 0;  colum < N; ++colum) {
-                result.matrix[N*row+colum] += first.matrix[N*row+curIndex] * second.matrix[N*curIndex+colum];
-            }
-        }
-    }
-    return result;
-}
 
 Matrix operator+(const Matrix& first, const Matrix& second) {
     Matrix result(first);
@@ -151,10 +103,10 @@ Matrix operator-(const Matrix& first, const Matrix& second) {
 void Matrix::findNormal() {
     float curRowSum = 0, curColumSum = 0;
     endlessNorm = firstNorm = __FLT_MIN__;
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            curRowSum += std::abs(matrix[N * i + j]);
-            curColumSum += std::abs(matrix[N * j + i]);
+    for (int i = 0; i < sizeMatrix; ++i) {
+        for (int j = 0; j < sizeMatrix; ++j) {
+            curRowSum += std::abs(matrix[sizeMatrix * i + j]);
+            curColumSum += std::abs(matrix[sizeMatrix * j + i]);
         }
         endlessNorm = (endlessNorm < curRowSum) ? curRowSum : endlessNorm;
         firstNorm = (firstNorm < curColumSum) ? curColumSum : firstNorm;
@@ -169,3 +121,93 @@ float Matrix::getFirstNorm() {
 float Matrix::getEndlessNorm() {
     return endlessNorm;
 }
+
+Matrix& Matrix::operator/=(float denominator) {
+    for (int i = 0; i < sizeMatrix; ++i) {
+        for (int j = 0; j < sizeMatrix; ++j) {
+            matrix[i * sizeMatrix + j] /= denominator;
+        }
+    }
+    return *this;
+}
+int Matrix::getSizeMatrix() {
+    return sizeMatrix;
+}
+
+int Matrix::getSizeMatrix() const {
+    return sizeMatrix;
+}
+
+Matrix operator*(const Matrix& first, const Matrix& second) {
+    Matrix result(first.getSizeMatrix());
+    result.fillZero();
+    for (int row = 0;  row < result.getSizeMatrix(); ++row) {
+        for (int  curIndex= 0;  curIndex < result.getSizeMatrix(); ++curIndex) {
+            for (int colum = 0;  colum < result.getSizeMatrix(); ++colum) {
+                result.matrix[result.getSizeMatrix()*row+colum] += first.matrix[result.getSizeMatrix()*row+curIndex] * second.matrix[result.getSizeMatrix()*curIndex+colum];
+            }
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::transformMatrix(const Matrix& other) {
+    for(int i = 0; i < sizeMatrix; ++i) {
+        for(int j = 0; j < sizeMatrix; ++j) {
+            matrix[sizeMatrix*j+i] = other.matrix[sizeMatrix*i+j];
+        }
+    }
+    return *this;
+}
+
+Matrix createMatrixBuiltFromNorms(const int sizeMatrix,  Matrix other) {
+    Matrix transformMatrix(sizeMatrix);
+    transformMatrix.transformMatrix(other);
+
+    other.findNormal();
+
+    transformMatrix /= (other.getFirstNorm() * other.getEndlessNorm());
+
+    return transformMatrix;
+}
+
+Matrix createMatrixOfRange(const int sizeMatrixOfRange, const Matrix& I, const Matrix& A, const Matrix& B) {
+    Matrix matrixOfRange(sizeMatrixOfRange);
+    matrixOfRange = B * A;
+    matrixOfRange = I - matrixOfRange;
+    return matrixOfRange;
+}
+
+void Matrix::setMatrix() {
+    for(int i = 0; i < sizeMatrix*sizeMatrix; ++i) {
+        matrix[i] = static_cast<float>(i % 7);
+    }
+}
+
+Matrix::~Matrix() {
+    if(matrix != NULL) {
+        delete[] matrix;
+        matrix = NULL;
+    }
+}
+
+Matrix matrixInversion(const int sizeMatrix, const int M) {
+    Matrix A(sizeMatrix), I(sizeMatrix);
+    A.setMatrix();
+    I.fillIdentityMatrix();
+    Matrix B = createMatrixBuiltFromNorms(sizeMatrix, A);
+    Matrix Range = createMatrixOfRange(sizeMatrix, I, A, B);
+
+    Matrix CurrentRange(Range);
+    Matrix InversionMatrix(I);
+
+    for(int i = 0; i < M; ++i) {
+        InversionMatrix += CurrentRange;
+        CurrentRange = CurrentRange * Range;
+    }
+
+    InversionMatrix = InversionMatrix * B;
+
+    return InversionMatrix;
+}
+

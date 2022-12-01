@@ -8,31 +8,34 @@
 #include <iostream>
 #include <vector>
 
-enum { N = 2048, M = 10};
-
 class Matrix {
 public:
-    Matrix();
+    Matrix() = default;
+    Matrix(const int sizeMatrix_);
     Matrix(const Matrix& other);
-    Matrix& operator=(Matrix&& other) noexcept;
     Matrix(Matrix&& other) noexcept;
-    void fillI();
-    void fillA();
-    float findMaxRowAndColum(const Matrix& other);
+    void fillIdentityMatrix();
     void fillZero();
-    void fillB(const Matrix& other);
-    void fillR(const Matrix& I, const Matrix& B, const Matrix& A);
     void printMatrix();
-    float checkMatrix();
+    void printMatrix() const;
     void findNormal();
     float getFirstNorm();
     float getEndlessNorm();
+    void setMatrix();
+    int getSizeMatrix();
+    int getSizeMatrix() const;
+    Matrix transformMatrix(const Matrix& other);
+
     Matrix& operator=(const Matrix& first);
     Matrix& operator+=(const Matrix& other);
     Matrix& operator-=(const Matrix& other);
-    friend  Matrix operator*(const Matrix& first, const Matrix& second);
+    Matrix& operator/=(float denominator);
+
     friend  Matrix operator-(const Matrix& first, const Matrix& second);
+    friend Matrix operator*(const Matrix& first, const Matrix& second);
+    ~Matrix();
 private:
+    int sizeMatrix;
     float* matrix;
     float endlessNorm, firstNorm;
 };
@@ -40,4 +43,9 @@ private:
 Matrix operator*(const Matrix& first, const Matrix& second);
 Matrix  operator+(const Matrix& first, const Matrix& second);
 Matrix operator-(const Matrix& first, const Matrix& second);
+
+Matrix matrixInversion(const int N, const int M);
+Matrix createMatrixOfRange(const int sizeMatrixOfRange, const Matrix& I, const Matrix& A, const Matrix& B);
+Matrix createMatrixBuiltFromNorms(const int sizeMatrix, Matrix other);
 #endif //LAB7_MATRIX_H
+
