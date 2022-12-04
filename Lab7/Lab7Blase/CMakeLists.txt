@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.16.3)
-project(Lab7Blase)
+project(Lab7Blas)
+set(CMAKE_CXX_STANDARD 11)
+#find_package(OPENBLAS REQUIRED)
 
-find_package(MKL REQUIRED)
+add_executable(Lab7Blas main.cpp Matrix.h Matrix.cpp)
 
-add_executable(Lab7Blase main.cpp Matrix.h Matrix.cpp)
+target_include_directories(Lab7Blas PUBLIC /opt/homebrew/Cellar/openblas/0.3.21/include)
 
-target_compile_options(Lab7Blase PUBLIC $<TARGET_PROPERTY:MKL::MKL,INTERFACE_COMPILE_OPTIONS>)
+#target_compile_options(Lab7Blas PUBLIC -I/opt/homebrew/Cellar/openblas/0.3.21/include)
 
-target_link_libraries(Lab7Blase PUBLIC $<LINK_ONLY:MKL::MKL>)
+target_link_libraries(Lab7Blas PUBLIC -L/opt/homebrew/Cellar/openblas/0.3.21/lib/ -lopenblas)
