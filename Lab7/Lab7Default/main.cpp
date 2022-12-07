@@ -6,6 +6,7 @@
 
 #include "Matrix.h"
 #include <chrono>
+#include <iostream>
 
 void checkMatrix(Matrix InversionMatrix) {
     Matrix defaultMatrix(2048);
@@ -31,4 +32,3 @@ int main() {
     checkMatrix(InversionA);
     return 0;
 }
-

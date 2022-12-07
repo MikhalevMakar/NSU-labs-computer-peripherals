@@ -48,4 +48,3 @@ Matrix matrixInversion(const int N, const int M);
 Matrix createMatrixOfRange(const int sizeMatrixOfRange, const Matrix& I, const Matrix& A, const Matrix& B);
 Matrix createMatrixBuiltFromNorms(const int sizeMatrix, Matrix other);
 #endif //LAB7_MATRIX_H
-

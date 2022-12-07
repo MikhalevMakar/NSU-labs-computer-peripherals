@@ -141,10 +141,10 @@ int Matrix::getSizeMatrix() const {
 Matrix operator*(const Matrix& first, const Matrix& second) {
     Matrix result(first.getSizeMatrix());
     result.fillZero();
-    for (int row = 0;  row < result.getSizeMatrix(); ++row) {
-        for (int  curIndex= 0;  curIndex < result.getSizeMatrix(); ++curIndex) {
-            for (int colum = 0;  colum < result.getSizeMatrix(); ++colum) {
-                result.matrix[result.getSizeMatrix()*row+colum] += first.matrix[result.getSizeMatrix()*row+curIndex] * second.matrix[result.getSizeMatrix()*curIndex+colum];
+    for (int row = 0;  row < result.sizeMatrix; ++row) {
+        for (int  curIndex= 0;  curIndex < result.sizeMatrix; ++curIndex) {
+            for (int colum = 0;  colum < result.sizeMatrix; ++colum) {
+                result.matrix[result.sizeMatrix*row+colum] += first.matrix[result.sizeMatrix*row+curIndex] * second.matrix[result.sizeMatrix*curIndex+colum];
             }
         }
     }
@@ -210,4 +210,3 @@ Matrix matrixInversion(const int sizeMatrix, const int M) {
 
     return InversionMatrix;
 }
-
