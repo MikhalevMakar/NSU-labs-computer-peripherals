@@ -1,34 +1,74 @@
 #include <iostream>
 #include <memory>
 #include <unordered_map>
-#include <chrono>
 #include <iomanip>
+#include <limits.h>
+#include <vector>
+#include "Matrix.h"
 
-union ticks{
-    unsigned long long t64;
-    struct s32{ long th,
-                     tl;
-    }t32;
-} start, end;
+uint64_t rdtsc(){
+    uint64_t lo,hi;__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+    return ((uint64_t)hi << 32) | lo;
+}
 
-void directArrayTraversal(int sizeArray, std::shared_ptr<int[]> array) {
-    for(int i = 0; i < sizeArray-1; ++i) {
+int findZero(size_t size, int* array) {
+    for(size_t i = 0; i < size; ++i) {
+        if(!array[i]) return i;
+    }
+    return 0;
+}
+
+void Swap(int* a, int* b) {
+    int c = *a;
+    *a = *b;
+    *b = c;
+}
+
+void generateTruthRandomByPass(size_t size, int* array) {
+    std::vector<bool> checkArray;
+    checkArray.reserve(size);
+    int counter = 0;
+    int value = 0;
+
+    for (size_t i = 0; i < size; ++i) {
+        value = array[value];
+        if (checkArray[value] == true) break;
+        checkArray[value] = true;
+        ++counter;
+    }
+
+    if (counter == size) return;
+    
+    int indexSwap;
+    for (int i = 0; i < size; ++i) {
+        if (!checkArray[i]) {
+            indexSwap = i;
+            break;
+        }
+    }
+
+    int tmpIndex = findZero(size, array);
+    Swap(reinterpret_cast<int *>(&array[tmpIndex]), reinterpret_cast<int *>(&array[indexSwap]));
+    generateTruthRandomByPass(size, array);
+}
+
+void directArrayTraversal(size_t sizeArray, int* array) {
+    for(size_t i = 0; i < sizeArray-1; ++i) {
         array[i] = i+1;
     }
     array[sizeArray-1] = 0;
 }
 
-void reverseArrayTraversal(int sizeArray, std::shared_ptr<int[]> array) {
-    for(int i = sizeArray-1; i >= 1; --i) {
+void reverseArrayTraversal(size_t sizeArray, int* array) {
+    for(size_t i = sizeArray-1; i >= 1; --i) {
         array[i] = i-1;
     }
     array[0] = sizeArray-1;
 }
 
-
-void randomArrayTraversal(int sizeArray, std::shared_ptr<int[]> array) {
+void randomArrayTraversal(size_t sizeArray, int* array) {
     std::unordered_map<int , int> mapIndex;
-    for(int i = 0; i < sizeArray-1; ++i) {
+    for(size_t i = 0; i < sizeArray-1; ++i) {
         mapIndex.insert({i+1, i+1});
     }
 
@@ -43,73 +83,65 @@ void randomArrayTraversal(int sizeArray, std::shared_ptr<int[]> array) {
         }
     }
     array[sizeArray-1] = 0;
+    generateTruthRandomByPass(sizeArray, array);
 }
 
-void printArray(int sizeArray, std::shared_ptr<int[]> array) {
-    for(int i = 0; i < sizeArray; ++i) {
-        std::cout << array[i] << " ";
-    }
-    std::cout << "\n";
+void printTime(size_t size, uint64_t firstTime, uint64_t secondTime, uint64_t thirdTime) {
+    std::cout  << std::setw(4) << firstTime
+               << std::setw(15) << secondTime
+               << std::setw(15) << thirdTime
+               << std::setw(20) << size << std::endl;
 }
 
-int getTime(std::chrono::time_point<std::chrono::high_resolution_clock> start,
-            std::chrono::time_point<std::chrono::high_resolution_clock> end) {
-    std::chrono::duration<double> durationTime(end - start);
-    return  durationTime.count();
+void warmCPU() {
+    Matrix A(100);
+    Matrix B(100);
+    A.fillIdentityMatrix();
+    B.fillZero();
+    Matrix C = A * B;
 }
 
-void printTime(int size, unsigned long long first, unsigned long long second, unsigned long long third) {
-    std::cout  << std::setw(4) << first << std::setw(9) << second  << std::setw(11) << third <<  std::setw(12) << size << std::endl;
-}
+uint64_t tackTime(size_t sizeArray, int* array) {
+    warmCPU();
+    size_t countByPass = 3;
 
-void warmUpProcessor(int sizeArray, std::shared_ptr<int[]> array) {
-    int count = 0;
-    while (count++ != 5) {
-        for (int i = 0; i < sizeArray; ++i) {
-            array[i] = i;
+    uint64_t minTime = INT_MAX;
+    for(size_t j = 0; j < countByPass; ++j) {
+        uint64_t tick  = rdtsc();
+        int k = 0;
+        for (size_t i = 0; i < sizeArray; ++i) {
+            k = array[k];
         }
+        uint64_t tmpTime =  rdtsc() - tick;
+        minTime = (minTime > tmpTime) ? tmpTime : minTime;
     }
+
+    uint64_t totalTime = minTime / static_cast<uint64_t>(sizeArray*countByPass);
+    return totalTime;
 }
 
-void accessTimeElement(int sizeArray, std::shared_ptr<int[]> array) {
-    int value;
-    for(int i = 0; i < sizeArray; ++i) {
-        value = array[i];
-    }
-}
+void threeTypesArrayTraversal(size_t beginSizeArray, size_t endSizeArray) {
+    //auto array = std::shared_ptr<int[]>(new int[INT_MAX]);
+    auto array = new int[endSizeArray];
 
-unsigned long long tackTime(int sizeArray, std::shared_ptr<int[]> array) {
-    unsigned long long minTime = 100;
-    for(int i = 0; i < 4; ++i) {
-        asm("rdtsc\n":"=a"(start.t32.th), "=d"(start.t32.tl));
-        accessTimeElement(sizeArray, array);
-        asm("rdtsc\n":"=a"(end.t32.th), "=d"(end.t32.tl));
-        int curTime = (end.t64 - start.t64) / sizeArray;
-        minTime = (curTime > minTime) ? minTime : curTime;
-    }
-    return minTime;
-}
+    std::cout << std::setw(6) << "Direct/tick"
+              <<  std::setw(15) << "Reverse/tick"
+              << std::setw(15) << "Random/tick"
+              << std::setw(15) << " Size\n";
 
-void threeTypesArrayTraversal(int beginSizeArray, int endSizeArray) {
-    auto array = std::shared_ptr<int[]>(new int[endSizeArray]);
-    std::chrono::time_point<std::chrono::high_resolution_clock> startTime,
-                                                                endTime;
-    unsigned long long  first, second, third;
-    std::cout << std::setw(6) << "Direct" << std::setw(10) << "Reverse" << std::setw(10) << "Random" << std::setw(10) << " Size"  << std::endl;
-    ticks time;
-    for(int size = beginSizeArray; size <= endSizeArray; size *= 2) {
-        warmUpProcessor(size, array);
+    uint64_t  firstTimeTime, secondTime, thirdTime;
+    for(size_t size = beginSizeArray; size <= endSizeArray; size *= 2) {
 
         directArrayTraversal(size, array);
-        first = tackTime(size, array);
+        firstTimeTime = tackTime(size, array);
 
         reverseArrayTraversal(size, array);
-        second = tackTime(size, array);
+        secondTime = tackTime(size, array);
 
         randomArrayTraversal(size, array);
-        third = tackTime(size, array);
+        thirdTime= tackTime(size, array);
 
-        printTime(size, first, second, third);
+        printTime(size, firstTimeTime, secondTime, thirdTime);
     }
 }
 
@@ -119,9 +151,9 @@ int main(int argc,  char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    threeTypesArrayTraversal(static_cast<int>(strtol(argv[1], nullptr, 10)),
-                             static_cast<int>(strtol(argv[2], nullptr, 10)));
+    threeTypesArrayTraversal(static_cast<size_t>(strtol(argv[1], nullptr, 10)),
+                             static_cast<size_t>(strtol(argv[2], nullptr, 10)));
 
     return 0;
 }
-
+  
