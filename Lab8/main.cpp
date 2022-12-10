@@ -90,7 +90,7 @@ void printTime(size_t size, uint64_t firstTime, uint64_t secondTime, uint64_t th
     std::cout  << std::setw(4) << firstTime
                << std::setw(15) << secondTime
                << std::setw(15) << thirdTime
-               << std::setw(20) << size << std::endl;
+               << std::setw(20) << size*sizeof(int) << std::endl;
 }
 
 void warmCPU() {
@@ -130,8 +130,7 @@ void threeTypesArrayTraversal(size_t beginSizeArray, size_t endSizeArray) {
               << std::setw(15) << " Size\n";
 
     uint64_t  firstTimeTime, secondTime, thirdTime;
-    for(size_t size = beginSizeArray; size <= endSizeArray; size *= 2) {
-
+    for(size_t size = beginSizeArray; size <= endSizeArray; size *= 1.2) {
         directArrayTraversal(size, array);
         firstTimeTime = tackTime(size, array);
 
