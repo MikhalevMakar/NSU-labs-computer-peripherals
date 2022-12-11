@@ -5,10 +5,17 @@
 #include <limits.h>
 #include <vector>
 #include "Matrix.h"
+#include <set>
 
-uint64_t rdtsc(){
+uint64_t GetRdtsc(){
     uint64_t lo,hi;__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return ((uint64_t)hi << 32) | lo;
+}
+
+uint64_t GetTSC() {
+    uint64_t highPart, lowPart;
+    asm volatile("rdtsc\n":"=a"(lowPart), "=d"(highPart));
+    return (highPart << 32) | (lowPart);
 }
 
 int findZero(size_t size, int* array) {
@@ -38,7 +45,7 @@ void generateTruthRandomByPass(size_t size, int* array) {
     }
 
     if (counter == size) return;
-    
+
     int indexSwap;
     for (int i = 0; i < size; ++i) {
         if (!checkArray[i]) {
@@ -103,20 +110,15 @@ void warmCPU() {
 
 uint64_t tackTime(size_t sizeArray, int* array) {
     warmCPU();
-    size_t countByPass = 3;
+    size_t countByPass = 100;
 
     uint64_t minTime = INT_MAX;
-    for(size_t j = 0; j < countByPass; ++j) {
-        uint64_t tick  = rdtsc();
-        int k = 0;
-        for (size_t i = 0; i < sizeArray; ++i) {
-            k = array[k];
-        }
-        uint64_t tmpTime =  rdtsc() - tick;
-        minTime = (minTime > tmpTime) ? tmpTime : minTime;
+    uint64_t tick  = GetTSC();
+    for (size_t i = 0, k = 0; i < sizeArray*countByPass; ++i) {
+        k = array[k];
     }
-
-    uint64_t totalTime = minTime / static_cast<uint64_t>(sizeArray*countByPass);
+    uint64_t tmpTime =  GetTSC() - tick;
+    uint64_t totalTime = tmpTime / static_cast<uint64_t>(sizeArray*countByPass);
     return totalTime;
 }
 
@@ -155,4 +157,3 @@ int main(int argc,  char *argv[]) {
 
     return 0;
 }
-  
