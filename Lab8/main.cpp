@@ -12,11 +12,6 @@ uint64_t GetRdtsc(){
     return ((uint64_t)hi << 32) | lo;
 }
 
-uint64_t GetTSC() {
-    uint64_t highPart, lowPart;
-    asm volatile("rdtsc\n":"=a"(lowPart), "=d"(highPart));
-    return (highPart << 32) | (lowPart);
-}
 
 int findZero(size_t size, int* array) {
     for(size_t i = 0; i < size; ++i) {
@@ -113,15 +108,14 @@ uint64_t tackTime(size_t sizeArray, int* array) {
     size_t countByPass = 100;
 
     uint64_t minTime = INT_MAX;
-    uint64_t tick = GetTSC();
+    uint64_t tick = GetRdtsc();
     int k = 0;
-    for (size_t i = 0; i < sizeArray* countByPass; ++i) {
+    for (size_t i = 0; i < sizeArray*countByPass; ++i) {
         k = array[k];
      }
-    if(k = 12)  return EXIT_FAILURE;
-    uint64_t tmpTime = GetTSC() - tick;
+    uint64_t tmpTime = GetRdtsc() - tick;
     minTime = (minTime > tmpTime) ? tmpTime : minTime;
-    uint64_t totalTime = minTime / (sizeArray*countByPass);
+    uint64_t totalTime = minTime / ((uint64_t)sizeArray*countByPass);
     return totalTime;
 }
 
@@ -160,5 +154,3 @@ int main(int argc,  char *argv[]) {
 
     return 0;
 }
-
-
