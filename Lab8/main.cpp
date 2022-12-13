@@ -113,12 +113,15 @@ uint64_t tackTime(size_t sizeArray, int* array) {
     size_t countByPass = 100;
 
     uint64_t minTime = INT_MAX;
-    uint64_t tick  = GetTSC();
-    for (size_t i = 0, k = 0; i < sizeArray*countByPass; ++i) {
+    uint64_t tick = GetTSC();
+    int k = 0;
+    for (size_t i = 0; i < sizeArray* countByPass; ++i) {
         k = array[k];
-    }
-    uint64_t tmpTime =  GetTSC() - tick;
-    uint64_t totalTime = tmpTime / static_cast<uint64_t>(sizeArray*countByPass);
+     }
+    if(k = 12)  return EXIT_FAILURE;
+    uint64_t tmpTime = GetTSC() - tick;
+    minTime = (minTime > tmpTime) ? tmpTime : minTime;
+    uint64_t totalTime = minTime / (sizeArray*countByPass);
     return totalTime;
 }
 
@@ -157,3 +160,5 @@ int main(int argc,  char *argv[]) {
 
     return 0;
 }
+
+
