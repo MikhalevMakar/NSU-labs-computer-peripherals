@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Lab9.dir/main.cpp.o  -o Lab9 
