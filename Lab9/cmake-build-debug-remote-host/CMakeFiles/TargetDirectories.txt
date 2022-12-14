@@ -1,3 +1,0 @@
-/tmp/tmp.Q6ikITeVdl/cmake-build-debug-remote-host/CMakeFiles/rebuild_cache.dir
-/tmp/tmp.Q6ikITeVdl/cmake-build-debug-remote-host/CMakeFiles/edit_cache.dir
-/tmp/tmp.Q6ikITeVdl/cmake-build-debug-remote-host/CMakeFiles/Lab9.dir
