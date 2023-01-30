@@ -39,16 +39,16 @@ uint64_t TackTime(size_t sizeArray, int* array) {
 }
 
 void ByPassCashLevel() {
-    int* array = new int[CashSize*CountFragments];
 
-    for(int i = 1; i <= CountFragments; ++i) {
-        FillCycleArray(CashSize/i, i, array);
-        std:: cout << i << " " << TackTime(CashSize*i, array) << std::endl;
-    }
-    delete[] array;
 }
 
 int main() {
     ByPassCashLevel();
     return 0;
+}   int* array = new int[CashSize*CountFragments];
+
+for(int i = 1; i <= CountFragments; ++i) {
+FillCycleArray(CashSize/i, i, array);
+std:: cout << i << " " << TackTime(CashSize*i, array) << std::endl;
 }
+delete[] array;
